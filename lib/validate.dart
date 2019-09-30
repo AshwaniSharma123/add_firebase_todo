@@ -1,6 +1,8 @@
 import 'package:add_firebase_todo/login.dart';
+import 'package:add_firebase_todo/shimmer.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'ShowData.dart';
 import 'package:toast/toast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,7 +13,9 @@ class App extends StatefulWidget {
   _AppState createState() => _AppState();
 }
   class _AppState extends State<App> {
+  // DateTime currentBackPressTime = DateTime.now();
   String id;
+  bool isProgressVisible = false;
   GlobalKey<FormState> _key = GlobalKey();
   bool _autoValidate = false;
   String name,profession = 'Profession' ,message,key;
@@ -25,18 +29,66 @@ class App extends StatefulWidget {
       value: 'professor',
     ),
   ];
+//
+//    DateTime now = DateTime.now();
+//  Future<bool> onWillPop()  {
+//
+//    if (now.difference(currentBackPressTime) > Duration(seconds: 5)) {
+//     // SystemNavigator.pop();
+//      currentBackPressTime = now;
+//      //showMessage("Double Press Back Button to exit.");
+//      Toast.show('do you want to exit', context,duration: Toast.LENGTH_LONG);
+//      return Future.value(false);
+//    }
+//    return Future.value(true);
+//  }
+
+
+  Future<bool> onWillPop()  {
+//    counter = counter + 1;
+//    if(counter == 1){
+//      Toast.show("press again to exit", context);
+//    }
+//    else{
+//      SystemNavigator.pop();
+//    }
+
+    return showDialog(
+      context: context,
+      builder: (context) =>  AlertDialog(
+        title:  Text('Are you sure?'),
+        content:  Text('Do you want to exit an App'),
+        actions: <Widget>[
+          FlatButton(
+            onPressed: () => SystemNavigator.pop(),
+            child:  Text('Yes'),
+          ),
+          FlatButton(
+            onPressed: () => Navigator.pop(context),
+            child:  Text('NO'),
+          ),
+        ],
+      ),
+    ) ?? false;
+  }
 
   @override
   void initState() {
     super.initState();
 
     getValuesSF();
+    setState(() {
+      isProgressVisible = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+       onWillPop: onWillPop,
+        child: Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text('Submit Data'),
         actions: <Widget>[
           IconButton(
@@ -47,7 +99,7 @@ class App extends StatefulWidget {
           )
         ],
       ),
-      body: SingleChildScrollView(
+      body: isProgressVisible ? ShimmerClass(): SingleChildScrollView(
         child: Container(
           color: Colors.white,
           height: MediaQuery.of(context).size.height*0.89,
@@ -59,6 +111,7 @@ class App extends StatefulWidget {
           ),
         ),
       ),
+    ),
     );
   }
   Widget formUI() {
@@ -109,10 +162,10 @@ class App extends StatefulWidget {
              elevation: 20.0,
              splashColor: Colors.green,
              onPressed: (){
-               Toast.show("Data List", context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
+               Toast.show("Data List", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
                Navigator.push(context, MaterialPageRoute(builder: (context) => ShoData(id)));
              },
-             child:Text('Show Data') ,
+             child:Text('Show Data'),
            ),
          ],
        ),
@@ -157,6 +210,9 @@ class App extends StatefulWidget {
   }
 
     getValuesSF() async {
+      setState(() {
+        isProgressVisible = true;
+      });
       SharedPreferences prefs = await SharedPreferences.getInstance();
       if(prefs.getString('userId') != null){
         id = prefs.getString('userId');

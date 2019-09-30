@@ -1,3 +1,4 @@
+import 'package:add_firebase_todo/shimmer.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -9,22 +10,23 @@ class Login extends StatefulWidget {
   @override
   _LoginState createState() => _LoginState();
 }
-
 class _LoginState extends State<Login> {
+
   bool _passwordVisible = true;
   final _passwordController = TextEditingController();
   final _emailController = TextEditingController();
-
   final GoogleSignIn googleSignIn = GoogleSignIn();
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
    bool isLoggedIn = false;
+   bool isProgressVisible = false;
 
   @override
-
   void initState() {
     super.initState();
     getValuesSF();
+    setState(() {
+      isProgressVisible = false;
+    });
   }
 
   @override
@@ -40,9 +42,10 @@ class _LoginState extends State<Login> {
               appBar: AppBar(
                 title: Text('Fire Authentication'),
               ),
-              body: SingleChildScrollView(
+              body:  isProgressVisible ? ShimmerClass() : SingleChildScrollView(
                 child: Container(
-                  child: Column(
+                  child:
+                  Column(
                     children: <Widget>[
                       SizedBox(height: 40,),
                       Padding(
@@ -117,6 +120,10 @@ class _LoginState extends State<Login> {
                               ),
                               splashColor: Colors.pinkAccent,
                               onPressed: () async {
+                                setState(() {
+                                  isProgressVisible =true;
+                                });
+
                                 try {
                                   final FirebaseUser user = (await _auth
                                       .signInWithEmailAndPassword(
@@ -128,6 +135,7 @@ class _LoginState extends State<Login> {
                                   user1.then((data) {
                                     // print("$data");
                                     if (data.uid != null) {
+
                                       addStringToSF(data.uid);              //for shared preference
                                       print(" Email details ----------------->>>>>>>>>> $data");
                                       Navigator.push(context, MaterialPageRoute(builder: (context) => App()));
@@ -186,6 +194,9 @@ class _LoginState extends State<Login> {
   }
 
   getValuesSF() async {
+    setState(() {
+      isProgressVisible = true;
+    });
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _emailController.text  = prefs.getString('User Name');
     _passwordController.text  = prefs.getString('Password');

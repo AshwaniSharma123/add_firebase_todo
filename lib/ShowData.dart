@@ -58,8 +58,7 @@ class _ShoDataState extends State<ShoData> {
       body:  Container(
           child: allData.length == 0 ? ShimmerClass()
           /*Center(child:Text('No Data is Available',style: TextStyle(
-            fontSize: 20.0,),),)*/
-           : ListView.builder(
+            fontSize: 20.0,),),)*/ : ListView.builder(
             itemCount: allData.length,
             itemBuilder: (_, index) {
               return UI(

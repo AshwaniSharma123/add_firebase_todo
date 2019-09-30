@@ -19,10 +19,10 @@ class ShimmerList extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: ListView.separated(
-        separatorBuilder: (context,index)=> Divider(
-          color: Colors.grey,
-        ),
+      child: ListView.builder(
+//        separatorBuilder: (context,index)=> Divider(
+//          color: Colors.grey,
+//        ),
         itemCount: 7,
           itemBuilder: (BuildContext context ,int index){
           return Padding(
