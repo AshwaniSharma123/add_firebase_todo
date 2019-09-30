@@ -1,15 +1,17 @@
+import 'package:add_firebase_todo/login.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'ShowData.dart';
 import 'package:toast/toast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class App extends StatefulWidget {
-  String id;
-  App(this.id);
+
   @override
   _AppState createState() => _AppState();
 }
   class _AppState extends State<App> {
+  String id;
   GlobalKey<FormState> _key = GlobalKey();
   bool _autoValidate = false;
   String name,profession = 'Profession' ,message,key;
@@ -23,11 +25,27 @@ class App extends StatefulWidget {
       value: 'professor',
     ),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+
+    getValuesSF();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Submit Data'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.call_missed_outgoing),
+            onPressed: (){
+              _showDialog();
+            },
+          )
+        ],
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -91,8 +109,8 @@ class App extends StatefulWidget {
              elevation: 20.0,
              splashColor: Colors.green,
              onPressed: (){
-               Toast.show("Data List", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
-               Navigator.push(context, MaterialPageRoute(builder: (context) => ShoData(widget.id)));
+               Toast.show("Data List", context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM);
+               Navigator.push(context, MaterialPageRoute(builder: (context) => ShoData(id)));
              },
              child:Text('Show Data') ,
            ),
@@ -101,6 +119,49 @@ class App extends StatefulWidget {
       ],
     );
   }
+
+
+  _showDialog() {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title:  Text("Are you sure to logout"),
+          //content:  Text("How Are You"),
+          actions: <Widget>[
+            FlatButton(
+              child:  Text("Log Out"),
+              onPressed: () {
+                removeValues();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          Login()),
+                );
+              },
+            ),
+            // usually buttons at the bottom of the dialog
+            FlatButton(
+              child:  Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+    getValuesSF() async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      if(prefs.getString('userId') != null){
+        id = prefs.getString('userId');
+      }
+    }
 
   _sentToServer(){
     if(_key.currentState.validate())
@@ -114,7 +175,7 @@ class App extends StatefulWidget {
         'profession' : profession,
         'message' : message,
       };
-      ref.child('node-name').child(widget.id).child(key).set(data).then((_) {
+      ref.child('node-name').child(id).child(key).set(data).then((_) {
         _key.currentState.reset();
       });
     }else{
@@ -126,12 +187,25 @@ class App extends StatefulWidget {
 
   String validateName(String value)
   {
-    return value.length == 0 ? "Enetr Name First" : null;
+    return value.length == 0 ? "Enter Name First" : null;
   }
 
   String validateMessage(String value)
   {
-    return value.length == 0 ? "Enetr Name First" : null;
+    return value.length == 0 ? "Enter Message" : null;
   }
+  }
+
+  uid(){
+
+  }
+
+removeValues() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();              //for remove
+  prefs.clear();
+  print('logout-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>');            //shared preference
 }
+
+
+
 

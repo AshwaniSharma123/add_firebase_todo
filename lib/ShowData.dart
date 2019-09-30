@@ -13,16 +13,16 @@ class ShoData extends StatefulWidget {
 }
 
 class _ShoDataState extends State<ShoData> {
-  String name ,message,key;
+  String name ,message,profession,key;
   List<myData> allData = [];
-  var  _updateController = TextEditingController();
+  var _updateController = TextEditingController();
 
-  DatabaseReference ref = FirebaseDatabase.instance.reference();
+  DatabaseReference ref = FirebaseDatabase.instance.reference();                                //fireBase reference
 
   @override
   void initState() {
     allData.clear();
-    //DatabaseReference ref = FirebaseDatabase.instance.reference();                           //for global acces we declare above in class
+    //DatabaseReference ref = FirebaseDatabase.instance.reference();                           //for global access we declare above in class
     ref.child('node-name').child(widget.getId).once().then((DataSnapshot snap) {
       var keys = snap.value.keys;
       var data = snap.value;
@@ -46,20 +46,20 @@ class _ShoDataState extends State<ShoData> {
     return Scaffold(
       appBar:  AppBar(
         title:  Text('Firebase List'),
-        actions: <Widget>[
-          InkWell(
-            child:Icon(Icons.refresh),
-            onTap: (){
-             //initState();
-            },
-          ),
-        ],
+//        actions: <Widget>[
+//          InkWell(
+//            child:Icon(Icons.refresh),
+//            onTap: (){
+//             initState();
+//            },
+//          ),
+//        ],
       ),
       body:  Container(
           child: allData.length == 0 ? ShimmerClass()
           /*Center(child:Text('No Data is Available',style: TextStyle(
-            fontSize: 20.0,),),)*/ :
-          ListView.builder(
+            fontSize: 20.0,),),)*/
+           : ListView.builder(
             itemCount: allData.length,
             itemBuilder: (_, index) {
               return UI(
@@ -88,7 +88,6 @@ class _ShoDataState extends State<ShoData> {
                 Text('Name: $name',style: Theme.of(context).textTheme.title,),
                 Text('Profession: $profession'),
                 Text('Message: $message'),
-
               ],
             ),
             Row(
@@ -113,6 +112,7 @@ class _ShoDataState extends State<ShoData> {
       ),
     );
   }
+
   deleteData(String id) async{
      await ref.child('node-name').child(widget.getId).child(id).remove();
    setState(() {
@@ -156,9 +156,11 @@ class _ShoDataState extends State<ShoData> {
                 decoration:  InputDecoration(
                   labelText: 'Update changes in the list',
                 ),
+
 //                    onSaved: (val){
 //                   name = val;
 //                    },
+
                ),
               ),
             ],
