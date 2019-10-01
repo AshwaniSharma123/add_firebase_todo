@@ -120,9 +120,6 @@ class _LoginState extends State<Login> {
                               ),
                               splashColor: Colors.pinkAccent,
                               onPressed: () async {
-                                setState(() {
-                                  isProgressVisible =true;
-                                });
 
                                 try {
                                   final FirebaseUser user = (await _auth
@@ -134,8 +131,10 @@ class _LoginState extends State<Login> {
                                   var user1 = _auth.currentUser();
                                   user1.then((data) {
                                     // print("$data");
-                                    if (data.uid != null) {
-
+                                    if (data.uid != null ) {
+                                      setState(() {
+                                        isProgressVisible =true;
+                                      });
                                       addStringToSF(data.uid);              //for shared preference
                                       print(" Email details ----------------->>>>>>>>>> $data");
                                       Navigator.push(context, MaterialPageRoute(builder: (context) => App()));
@@ -202,7 +201,6 @@ class _LoginState extends State<Login> {
     _passwordController.text  = prefs.getString('Password');
     if(prefs.getBool('isLoggedIn') != null){
       print('logged in ---------------------->>>>>>>>>>>>>>>>>>>>>>${prefs.getBool('isLoggedIn')}');
-
       if(prefs.getBool('isLoggedIn')){
         Navigator.push(
           context,

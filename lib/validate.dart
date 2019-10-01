@@ -92,19 +92,20 @@ class App extends StatefulWidget {
         title: Text('Submit Data'),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.call_missed_outgoing),
+            icon: Icon(Icons.power_settings_new),
+            tooltip: "Log Out",
             onPressed: (){
               _showDialog();
             },
           )
         ],
       ),
-      body: isProgressVisible ? ShimmerClass(): SingleChildScrollView(
-        child: Container(
-          color: Colors.white,
-          height: MediaQuery.of(context).size.height*0.89,
-          padding: EdgeInsets.all(25.0),
-          child: Form(
+           body: isProgressVisible ? ShimmerClass(): SingleChildScrollView(
+           child: Container(
+           color: Colors.white,
+           height: MediaQuery.of(context).size.height*0.89,
+           padding: EdgeInsets.all(25.0),
+           child: Form(
             key: _key,
             autovalidate: _autoValidate,
             child:  formUI(),
@@ -114,6 +115,7 @@ class App extends StatefulWidget {
     ),
     );
   }
+
   Widget formUI() {
      return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,9 +175,7 @@ class App extends StatefulWidget {
     );
   }
 
-
   _showDialog() {
-    // flutter defined function
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -188,12 +188,7 @@ class App extends StatefulWidget {
               child:  Text("Log Out"),
               onPressed: () {
                 removeValues();
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          Login()),
-                );
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Login()));
               },
             ),
             // usually buttons at the bottom of the dialog
@@ -252,13 +247,10 @@ class App extends StatefulWidget {
   }
   }
 
-  uid(){
-
-  }
-
 removeValues() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();              //for remove
-  prefs.clear();
+  prefs.remove("Password");
+  prefs.remove("isLoggedIn");
   print('logout-------------------------->>>>>>>>>>>>>>>>>>>>>>>>>');            //shared preference
 }
 
