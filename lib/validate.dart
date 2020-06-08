@@ -121,6 +121,7 @@ class App extends StatefulWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         TextFormField(
+           validator: validateName,
           decoration: InputDecoration(
             hintText: "Enter Name",
           ),
@@ -157,14 +158,19 @@ class App extends StatefulWidget {
            RaisedButton(
              elevation: 10.0,
              splashColor: Colors.red,
-             onPressed: _sentToServer,
-             child:Text('Send') ,
+             onPressed:() {
+               _sentToServer();
+               setState(() {
+                 FocusScope.of(context).unfocus();
+               });
+               },
+             child:Text('Send'),
            ),
            RaisedButton(
              elevation: 20.0,
              splashColor: Colors.green,
              onPressed: (){
-               Toast.show("Data List", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+               Toast.show("To-Do List", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
                Navigator.push(context, MaterialPageRoute(builder: (context) => ShoData(id)));
              },
              child:Text('Show Data'),
@@ -227,6 +233,7 @@ class App extends StatefulWidget {
         'message' : message,
       };
       ref.child('node-name').child(id).child(key).set(data).then((_) {
+          Toast.show("Data added successfully", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
         _key.currentState.reset();
       });
     }else{

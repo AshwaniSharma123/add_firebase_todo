@@ -5,29 +5,30 @@ import 'MyData.dart';
 import 'shimmer.dart';
 
 class ShoData extends StatefulWidget {
+  
   String getId;
-
   ShoData(this.getId);
+  
   @override
   _ShoDataState createState() => _ShoDataState();
 }
 
 class _ShoDataState extends State<ShoData> {
   String name ,message,profession,key;
-  List<myData> allData = [];
-  var _updateController = TextEditingController();
+  List<MyData> allData = [];
+  TextEditingController _updateController = TextEditingController();
 
-  DatabaseReference ref = FirebaseDatabase.instance.reference();                                //fireBase reference
+  DatabaseReference ref = FirebaseDatabase.instance.reference();        //fireBase reference
 
   @override
   void initState() {
     allData.clear();
-    //DatabaseReference ref = FirebaseDatabase.instance.reference();                           //for global access we declare above in class
+    //DatabaseReference ref = FirebaseDatabase.instance.reference();      //for global access we declare above in class
     ref.child('node-name').child(widget.getId).once().then((DataSnapshot snap) {
       var keys = snap.value.keys;
       var data = snap.value;
       for(var key in keys){
-       myData d =  myData(
+       MyData d =  MyData(
             data[key]['name'],
             data[key]['message'],
             data[key]['profession'],
@@ -39,6 +40,7 @@ class _ShoDataState extends State<ShoData> {
         print('length: ${allData.length}');
       });
     });
+    super.initState();
   }
   
   @override
@@ -46,22 +48,12 @@ class _ShoDataState extends State<ShoData> {
     return Scaffold(
       appBar:  AppBar(
         title:  Text('Firebase List'),
-//        actions: <Widget>[
-//          InkWell(
-//            child:Icon(Icons.refresh),
-//            onTap: (){
-//             initState();
-//            },
-//          ),
-//        ],
       ),
       body:  Container(
-          child: allData.length == 0 ? ShimmerClass()
-          /*Center(child:Text('No Data is Available',style: TextStyle(
-            fontSize: 20.0,),),)*/ : ListView.builder(
+          child: allData.length == 0 ? ShimmerClass(): ListView.builder(
             itemCount: allData.length,
             itemBuilder: (_, index) {
-              return UI(
+              return ui(
                 allData[index].name,
                 allData[index].profession,
                 allData[index].message,
@@ -73,7 +65,7 @@ class _ShoDataState extends State<ShoData> {
       );
   }
 
-  Widget UI(String name,String profession,String message,String id){
+  Widget ui(String name,String profession,String message,String id){
     return Card(
       elevation: 10.0,
       child: Container(
@@ -121,7 +113,7 @@ class _ShoDataState extends State<ShoData> {
        var keys = snap.value.keys;
        var data = snap.value;
        for(var key in keys){
-         myData d =  myData(
+         MyData d =  MyData(
              data[key]['name'],
              data[key]['message'],
              data[key]['profession'],
@@ -194,7 +186,7 @@ class _ShoDataState extends State<ShoData> {
       var keys = snap.value.keys;
       var data = snap.value;
       for(var key in keys){
-        myData d =  myData(
+        MyData d =  MyData(
           data[key]['name'],
           data[key]['message'],
           data[key]['profession'],

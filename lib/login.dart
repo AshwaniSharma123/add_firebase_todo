@@ -10,15 +10,17 @@ class Login extends StatefulWidget {
   @override
   _LoginState createState() => _LoginState();
 }
-class _LoginState extends State<Login> {
 
+class _LoginState extends State<Login> {
   bool _passwordVisible = true;
+   bool _autoValidate = false;
   final _passwordController = TextEditingController();
   final _emailController = TextEditingController();
   final GoogleSignIn googleSignIn = GoogleSignIn();
   final FirebaseAuth _auth = FirebaseAuth.instance;
-   bool isLoggedIn = false;
-   bool isProgressVisible = false;
+  GlobalKey<FormState> _key = GlobalKey();
+  bool isLoggedIn = false;
+  bool isProgressVisible = false;
 
   @override
   void initState() {
@@ -31,7 +33,6 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'fire Auth',
@@ -39,24 +40,30 @@ class _LoginState extends State<Login> {
         primarySwatch: Colors.grey,
       ),
       home: Scaffold(
-              appBar: AppBar(
-                title: Text('Fire Authentication'),
-              ),
-              body:  isProgressVisible ? ShimmerClass() : SingleChildScrollView(
+        appBar: AppBar(
+          title: Text('Fire Authentication'),
+        ),
+        body: isProgressVisible
+            ? ShimmerClass()
+            : SingleChildScrollView(
                 child: Container(
-                  child:
-                  Column(
+                  child: Form(
+                    key: _key,
+            autovalidate: _autoValidate,
+                   child: Column(
                     children: <Widget>[
-                      SizedBox(height: 40,),
+                      SizedBox(
+                        height: 40,
+                      ),
                       Padding(
                         padding: EdgeInsets.all(10.0),
-                        child:
-                        TextFormField(
+                        child: TextFormField(
+                          validator: validateEmail,
                           controller: _emailController,
                           cursorColor: Colors.black,
                           decoration: InputDecoration(
                             //   hintText: 'User Name',
-                            labelText: "user",
+                            labelText: "user name",
                             prefixIcon: Icon(
                               Icons.person,
                               color: Colors.grey,
@@ -71,13 +78,14 @@ class _LoginState extends State<Login> {
                       Padding(
                         padding: EdgeInsets.all(10.0),
                         child: TextFormField(
+                          validator: validatePswd,
                           obscureText: _passwordVisible,
                           controller: _passwordController,
                           cursorColor: Colors.black,
                           decoration: InputDecoration(
 //                        border: OutlineInputBorder(borderRadius: BorderRadius
 //                            .circular(20.0),
-//                        ),
+//                        ), 
                             //  hintText: 'Password',
                             labelText: "password",
                             prefixIcon: Icon(
@@ -87,15 +95,15 @@ class _LoginState extends State<Login> {
                             suffixIcon: IconButton(
                               icon: Icon(
                                 // Based on passwordVisible state choose the icon
-                                _passwordVisible ? Icons.visibility : Icons
-                                    .visibility_off, color: Theme
-                                  .of(context)
-                                  .primaryColorDark,
+                                _passwordVisible
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                                color: Theme.of(context).primaryColorDark,
                               ),
                               onPressed: () {
                                 // Update the state i.e. toogle the state of passwordVisible variable
                                 setState(() {
-                                  _passwordVisible = ! _passwordVisible;
+                                  _passwordVisible = !_passwordVisible;
                                 });
                               },
                             ),
@@ -106,13 +114,16 @@ class _LoginState extends State<Login> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 40.0,),
+                      SizedBox(
+                        height: 40.0,
+                      ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: <Widget>[
                           RaisedButton(
                               elevation: 5.0,
-                              child: Text('Sign in',
+                              child: Text(
+                                'Sign in',
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 20.0,
@@ -120,58 +131,69 @@ class _LoginState extends State<Login> {
                               ),
                               splashColor: Colors.pinkAccent,
                               onPressed: () async {
-
+                                setState(() {
+                                        _autoValidate = true;
+                                      });
+                                FocusScope.of(context).unfocus();
                                 try {
-                                  final FirebaseUser user = (await _auth
-                                      .signInWithEmailAndPassword(
+                                  final FirebaseUser user =
+                                      (await _auth.signInWithEmailAndPassword(
                                     email: _emailController.text.toString(),
-                                    password: _passwordController.text
-                                        .toString(),
-                                  )).user;
+                                    password:
+                                        _passwordController.text.toString(),
+                                  ))
+                                          .user;
+                                          // final FirebaseUser currentUser = await  _auth.currentUser();
+                                          // assert(user.uid == currentUser.uid);
                                   var user1 = _auth.currentUser();
                                   user1.then((data) {
                                     // print("$data");
-                                    if (data.uid != null ) {
+                                    if (data.uid != null) {
                                       setState(() {
-                                        isProgressVisible =true;
+                                        isProgressVisible = true;
                                       });
-                                      addStringToSF(data.uid);              //for shared preference
-                                      print(" Email details ----------------->>>>>>>>>> $data");
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => App()));
-                                    }
-                                    else {
+                                      addStringToSF(
+                                          data.uid); //for shared preference
+                                      print(
+                                          " Email details ----------------->>>>>>>>>> $data");
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => App()));
+                                    } else {
+                                      
                                       print(
                                           'invalid user ----------------->>>>>>>>  $e');
                                     }
                                   });
                                   // debugPrint("login successfully firebase  ");
-                                }
-                                catch (e) {
+                                } catch (e) {
+                                 
                                   debugPrint(
                                       "login failed firebase ---------------->>>>>>>  $e");
                                 }
-                              }
-                          ),
+                              }),
                           SizedBox(height: 40),
                           RaisedButton(
                               elevation: 5.0,
-                              child: Text('Register',
+                              child: Text(
+                                'Register',
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 20.0,
-                                ),),
+                                ),
+                              ),
                               splashColor: Colors.green,
                               onPressed: () {
                                 registerUser();
-                              }
-                          ),
+                              }),
                         ],
                       ),
                     ],
-                  ),
+                  )),
                 ),
               ),
-            ),
+      ),
     );
   }
 
@@ -181,13 +203,15 @@ class _LoginState extends State<Login> {
     final FirebaseUser user = (await _auth.createUserWithEmailAndPassword(
       email: _emailController.text.toString(),
       password: _passwordController.text.toString(),
-    )).user;
+    ))
+        .user;
+        print("jdsakjfbk"+user.toString());
   }
 
   addStringToSF(String user) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('User Name', _emailController.text);
-    prefs.setString('Password',_passwordController.text );
+    prefs.setString('Password', _passwordController.text);
     prefs.setString("userId", user);
     prefs.setBool('isLoggedIn', true);
   }
@@ -197,19 +221,26 @@ class _LoginState extends State<Login> {
       isProgressVisible = true;
     });
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    _emailController.text  = prefs.getString('User Name');
-    _passwordController.text  = prefs.getString('Password');
-    if(prefs.getBool('isLoggedIn') != null){
-      print('logged in ---------------------->>>>>>>>>>>>>>>>>>>>>>${prefs.getBool('isLoggedIn')}');
-      if(prefs.getBool('isLoggedIn')){
+    _emailController.text = prefs.getString('User Name');
+    _passwordController.text = prefs.getString('Password');
+    if (prefs.getBool('isLoggedIn') != null) {
+      print(
+          'logged in ---------------------->>>>>>>>>>>>>>>>>>>>>>${prefs.getBool('isLoggedIn')}');
+      if (prefs.getBool('isLoggedIn')) {
         Navigator.push(
           context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  App()),
+          MaterialPageRoute(builder: (context) => App()),
         );
       }
     }
   }
+    String validateEmail(String value)
+  {
+    return value.length == 0 ? "Please Enter E-mail" : null;
+  }
 
+  String validatePswd(String value)
+  {
+    return value.length == 0 ? "Password must not be empty" : null;
+  }
 }
